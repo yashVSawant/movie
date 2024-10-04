@@ -30,7 +30,7 @@ function App() {
       </section>
       <section>
         {!isLoading && <MoviesList isLoading={isLoading} movies={movies} />}
-        {!isLoading && <p>movies not fetched yet!</p>}
+        {!isLoading && <p>movies not fetched yet!!!!</p>}
         {isLoading && <Loader/>}
       </section>
     </React.Fragment>
