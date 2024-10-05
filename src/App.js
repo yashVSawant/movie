@@ -1,23 +1,20 @@
-import React,{useState} from 'react';
+import React,{useState ,useEffect ,useCallback } from 'react';
 
 import MoviesList from './components/MoviesList';
 import Loader from './components/Loader';
-import { Button } from 'react-bootstrap';
 import './App.css';
 
 function App() {
   const [movies , setMovies] = useState([]);
   const [isLoading , setIsLoading] = useState(false);
   const [error ,setError] = useState(null);
-  const [isRetry , setIsRetry] = useState(true);
-
-  const fetchMoveHandler = async()=>{
+  
+  const fetchMoveHandler = useCallback(async()=>{
     setMovies([])
     setIsLoading(true);
     setError(null);
-
     try {
-      const filmsApiResponse = await fetch('https://swapi.dev/api/film');
+      const filmsApiResponse = await fetch('https://swapi.dev/api/films');
       if(!filmsApiResponse.ok)throw new Error('Something went wrong!...Retrying');
       const fetchedMovies = await filmsApiResponse.json();
       const movies = fetchedMovies.results.map(movie=>{return{
@@ -28,19 +25,20 @@ function App() {
     } catch (err) {
       setError(err.message);
       setIsLoading(false);
-      if(isRetry)retry()
     }
   }
-  const retry = ()=>{
-    setTimeout(() => {
-      fetchMoveHandler()
-    }, 5000);
-  }
+  ,[]);
 
-  const cancelRetryHandler = ()=>{
-    setIsRetry(false);
-    console.log(isRetry)
-  }
+  useEffect(()=>{  
+    fetchMoveHandler();
+  },[fetchMoveHandler])
+
+  let listInfo ;
+  if(isLoading) listInfo = <Loader/>;
+  else if(error) listInfo = <p>{error}</p>;
+  else if(movies.length > 0 )listInfo = <MoviesList isLoading={isLoading} movies={movies} />;
+  else listInfo = <p>movies not fetched yet!</p>;
+
 
 
   return (
@@ -49,10 +47,7 @@ function App() {
         <button onClick={fetchMoveHandler}>Fetch Movies</button>
       </section>
       <section>
-        {!isLoading && movies.length > 0 && <MoviesList isLoading={isLoading} movies={movies} />}
-        {!isLoading && movies.length ===0 && !error && <p>movies not fetched yet!</p>}
-        {!isLoading && error && <p>{error} <Button onClick={cancelRetryHandler}>Cancel Retry</Button></p>}
-        {isLoading && <Loader/>}
+        {listInfo}
       </section>
     </React.Fragment>
   );
