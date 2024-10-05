@@ -31,6 +31,7 @@ function App() {
 
   useEffect(()=>{  
     fetchMoveHandler();
+    
   },[fetchMoveHandler])
 
   let listInfo ;
